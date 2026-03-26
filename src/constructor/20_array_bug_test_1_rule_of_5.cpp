@@ -65,6 +65,77 @@ private:
     int *p;
 };
 
+class Array {
+public:
+    Array():num(5), p((INT*)malloc(sizeof(INT) * num)) {
+        cout << "Array default constructor" << endl;
+        for(int i = 0; i < num; i++) {
+            new (p + i) INT();
+        }    
+    }
+
+    Array(const Array &a):num(a.num), p((INT*)malloc(sizeof(INT) * num)) {
+        cout << "Array copy constructor" << endl;
+        for(int i = 0; i < num; i++) {
+            // todo 测试 这里应该不能写a.p[i]
+            new (p + i) INT(a.p[i].val());
+        }
+    }
+
+    Array(Array &&a): num(a.num), p(a.p){
+        a.num = 0;
+        a.p = nullptr;
+    }
+    
+
+    Array& operator=(const Array &a) {
+        cout << "copy assign" << endl;
+        if(this == &a) {
+            return *this;
+        }
+        // 删除之前的内存
+        for(int i = 0; i < num; i++) {
+            p[i].~INT();    
+        }
+        free(p);
+        // 根据a重新构建内存
+        num = a.num;
+        p = (INT*)(malloc(sizeof(INT) * a.num));
+        for(int i = 0; i < num; i++) {
+            new (p + i) INT(a.p[i].val());
+        }
+        return *this;
+    }
+
+    Array& operator=(Array &&a) {
+        cout << "move assign" << endl;
+        if(this == &a) {
+            return *this;
+        }
+        // 删除之前的内存
+        for(int i = 0; i < num; i++) {
+            p[i].~INT();    
+        }
+        free(p);
+        num = a.num;
+        p = a.p;
+        a.num = 0;
+        a.p = nullptr;
+        return *this;
+    }
+
+    ~Array() {
+        cout << "Array destructor" << endl;
+        for(int i = 0; i < num; i++) {
+            p[i].~INT();
+        }
+        free(p);
+    }
+private:
+    int num;
+    INT *p;
+};
+
 /**
  * 测试INT类
  */
@@ -83,19 +154,28 @@ void testIntClass() {
     f = std::move(d);
 }
 
+void testArray() {
+    Array a;
+    Array b = a;
+    Array c = std::move(a);
+
+    Array d;
+    Array e,f;
+    e = d;
+    f = std::move(d);
+}
 
 int main() {
-    cout << "start" << endl;
+    cout << "start---------------------------" << endl;
     // 1. 设置调试标志
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    
     // 2. 将泄漏报告重定向到标准错误输出（控制台可见）
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
     
-    testIntClass();
-    
+    testArray();
+
     _CrtDumpMemoryLeaks();
-    cout << "end" << endl;
+    cout << "end------------------------------" << endl;
     return 0;
 }
