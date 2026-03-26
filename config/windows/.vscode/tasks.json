@@ -2,6 +2,14 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Clear Terminal",
+            "type": "shell",
+            "command": "cls",
+            "windows": {
+                "command": "cls"
+            }
+        },
+        {
             "type": "shell",
             "label": "Create bin directory",
             "command": "New-Item",

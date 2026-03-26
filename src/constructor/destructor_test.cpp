@@ -3,7 +3,7 @@ using namespace std;
 class A {
 public:
     A(): data(new int[10]) {
-        cout << this << " default constructor" << endl;
+        cout << this << " default constructor 222" << endl;
     }
     ~A() {
         cout << this << " destructor" << endl;
